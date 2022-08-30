@@ -13,7 +13,6 @@ import {
   EuiTitle,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiRadioGroup,
   EuiAccordion,
 } from "@elastic/eui";
 import _ from "lodash";
@@ -26,6 +25,7 @@ import { IndexItem } from "../../../../../models/interfaces";
 import { CatRepository, GetSnapshot } from "../../../../../server/models/interfaces";
 import CustomLabel from "../../../../components/CustomLabel";
 import SnapshotRestoreAdvancedOptions from "../SnapshotRestoreAdvancedOptions";
+import SnapshotRestoreInitialOptions from "../SnapshotRestoreInitialOptions";
 import SnapshotIndicesRepoInput from "../../../CreateSnapshotPolicy/components/SnapshotIndicesRepoInput";
 import { ERROR_PROMPT } from "../../../CreateSnapshotPolicy/constants";
 
@@ -64,7 +64,7 @@ export default class RestoreSnapshotFlyout extends Component<RestoreSnapshotProp
       selectedRepoValue: "",
       snapshot: null,
       snapshotId: "",
-      restoreSpecific: true,
+      restoreSpecific: false,
       repoError: "",
       snapshotIdError: "",
     };
@@ -79,7 +79,7 @@ export default class RestoreSnapshotFlyout extends Component<RestoreSnapshotProp
     const { restoreSnapshot, snapshotId } = this.props;
     const { selectedRepoValue } = this.state;
     let repoError = "";
-    console.log("clicked");
+
     if (!snapshotId.trim()) {
       this.setState({ snapshotIdError: "Required" });
 
@@ -103,12 +103,11 @@ export default class RestoreSnapshotFlyout extends Component<RestoreSnapshotProp
   };
 
   getSnapshot = async (snapshotId: string, repository: string) => {
-    console.log("flyout", [repository, snapshotId]);
-    console.log("repositories", [...this.state.repositories]);
     const { snapshotManagementService } = this.props;
+
     try {
       const response = await snapshotManagementService.getSnapshot(snapshotId, repository);
-      console.log("my response", response);
+
       if (response.ok) {
         const newOptions = response.response.indices.map((index) => {
           return { label: index };
@@ -163,6 +162,26 @@ export default class RestoreSnapshotFlyout extends Component<RestoreSnapshotProp
       repoError = ERROR_PROMPT.REPO;
     }
     this.setState({ selectedRepoValue: selectedRepo, repoError });
+  };
+
+  onRestoreAllIndicesToggle = (e: ChangeEvent<HTMLInputElement>) => {
+    this.setState({ snapshot: _.set(this.state.snapshot!, "restore_all_indices", e.target.checked) });
+  };
+
+  onRestoreSpecificIndicesToggle = (e: ChangeEvent<HTMLInputElement>) => {
+    this.setState({ snapshot: _.set(this.state.snapshot!, "restore_specific_indices", e.target.checked) });
+  };
+
+  onDoNotRenameToggle = (e: ChangeEvent<HTMLInputElement>) => {
+    this.setState({ snapshot: _.set(this.state.snapshot!, "do_not_rename", e.target.checked) });
+  };
+
+  onAddPrefixToggle = (e: ChangeEvent<HTMLInputElement>) => {
+    this.setState({ snapshot: _.set(this.state.snapshot!, "add_prefix", e.target.checked) });
+  };
+
+  onRenameIndicesToggle = (e: ChangeEvent<HTMLInputElement>) => {
+    this.setState({ snapshot: _.set(this.state.snapshot!, "rename_indices", e.target.checked) });
   };
 
   onRestoreAliasesToggle = (e: ChangeEvent<HTMLInputElement>) => {
@@ -220,7 +239,22 @@ export default class RestoreSnapshotFlyout extends Component<RestoreSnapshotProp
           </EuiFlexGroup>
 
           <EuiSpacer size="xxl" />
-          <EuiSpacer size="l" />
+
+          {!restoreSpecific && (
+            <SnapshotRestoreInitialOptions
+              restoreAllIndices={String(_.get(snapshot, "restore_all_indices", false)) == "true"}
+              onRestoreAllIndicesToggle={this.onRestoreAllIndicesToggle}
+              restoreSpecificIndices={String(_.get(snapshot, "restore_specific_indices", false)) == "true"}
+              onRestoreSpecificIndicesToggle={this.onRestoreSpecificIndicesToggle}
+              doNotRename={String(_.get(snapshot, "do_not_rename", false)) == "true"}
+              onDoNotRenameToggle={this.onDoNotRenameToggle}
+              addPrefix={String(_.get(snapshot, "add_prefix", false)) == "true"}
+              onAddPrefixToggle={this.onAddPrefixToggle}
+              renameIndices={String(_.get(snapshot, "rename_indices", false)) == "true"}
+              onRenameIndicesToggle={this.onRenameIndicesToggle}
+              width="200%"
+            />
+          )}
 
           {restoreSpecific && (
             <SnapshotIndicesRepoInput
