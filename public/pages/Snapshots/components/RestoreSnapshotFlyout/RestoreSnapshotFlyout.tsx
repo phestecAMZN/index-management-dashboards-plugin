@@ -3,7 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { EuiComboBoxOptionOption, EuiFlyout, EuiFlyoutBody, EuiFlyoutFooter, EuiFlyoutHeader, EuiSpacer, EuiTitle } from "@elastic/eui";
+import {
+  EuiComboBoxOptionOption,
+  EuiFlyout,
+  EuiFlyoutBody,
+  EuiFlyoutFooter,
+  EuiFlyoutHeader,
+  EuiSpacer,
+  EuiTitle,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiRadioGroup,
+} from "@elastic/eui";
 import _ from "lodash";
 import React, { Component } from "react";
 import FlyoutFooter from "../../../VisualCreatePolicy/components/FlyoutFooter";
@@ -34,6 +45,7 @@ interface RestoreSnapshotState {
 
   snapshot: GetSnapshot | null;
   snapshotId: string;
+  restoreSpecific: boolean;
 
   repoError: string;
   snapshotIdError: string;
@@ -51,6 +63,7 @@ export default class RestoreSnapshotFlyout extends Component<RestoreSnapshotProp
       selectedRepoValue: "",
       snapshot: null,
       snapshotId: "",
+      restoreSpecific: true,
       repoError: "",
       snapshotIdError: "",
     };
@@ -153,7 +166,7 @@ export default class RestoreSnapshotFlyout extends Component<RestoreSnapshotProp
 
   render() {
     const { onCloseFlyout, snapshotId } = this.props;
-    const { indexOptions, selectedIndexOptions, repositories, selectedRepoValue, repoError } = this.state;
+    const { indexOptions, selectedIndexOptions, repositories, selectedRepoValue, restoreSpecific, repoError, snapshot } = this.state;
 
     const repoOptions = repositories.map((r) => ({ value: r.id, text: r.id }));
 
@@ -166,22 +179,37 @@ export default class RestoreSnapshotFlyout extends Component<RestoreSnapshotProp
         </EuiFlyoutHeader>
 
         <EuiFlyoutBody>
-          <CustomLabel title="Snapshot name" />
-          <h3>{snapshotId}</h3>
+          <EuiFlexGroup>
+            <EuiFlexItem>
+              <CustomLabel title="Snapshot name" />
+              <h3>{snapshot?.snapshot}</h3>
+            </EuiFlexItem>
+            <EuiFlexItem>
+              <CustomLabel title="Status" />
+              <h3>{snapshot?.state}</h3>
+            </EuiFlexItem>
+            <EuiFlexItem>
+              <CustomLabel title="Indices" />
+              <h3>{snapshot?.indices.length}</h3>
+            </EuiFlexItem>
+          </EuiFlexGroup>
 
-          <EuiSpacer size="m" />
+          <EuiSpacer size="xxl" />
+          <EuiSpacer size="l" />
 
-          <SnapshotIndicesRepoInput
-            indexOptions={indexOptions}
-            selectedIndexOptions={selectedIndexOptions}
-            onIndicesSelectionChange={this.onIndicesSelectionChange}
-            getIndexOptions={this.getIndexOptions}
-            onCreateOption={this.onCreateOption}
-            repoOptions={repoOptions}
-            selectedRepoValue={selectedRepoValue}
-            onRepoSelectionChange={this.onRepoSelectionChange}
-            repoError={repoError}
-          />
+          {restoreSpecific && (
+            <SnapshotIndicesRepoInput
+              indexOptions={indexOptions}
+              selectedIndexOptions={selectedIndexOptions}
+              onIndicesSelectionChange={this.onIndicesSelectionChange}
+              getIndexOptions={this.getIndexOptions}
+              onCreateOption={this.onCreateOption}
+              repoOptions={repoOptions}
+              selectedRepoValue={selectedRepoValue}
+              onRepoSelectionChange={this.onRepoSelectionChange}
+              repoError={repoError}
+            />
+          )}
 
           <EuiSpacer size="l" />
         </EuiFlyoutBody>
