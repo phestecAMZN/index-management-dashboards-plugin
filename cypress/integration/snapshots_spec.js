@@ -52,7 +52,7 @@ describe("Snapshots", () => {
       cy.createIndex("test_index_3");
 
       // Click Take snapshot button
-      cy.get("button").contains("Take snapshot").click({ force: true });
+      cy.contains("Take snapshot").click({ force: true });
 
       // Confirm test_repo exists and is in the Select repo field
       cy.contains("test_repo");
