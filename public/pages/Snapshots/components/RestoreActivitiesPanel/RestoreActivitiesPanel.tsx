@@ -92,6 +92,8 @@ export const RestoreActivitiesPanel = ({ snapshotManagementService, snapshotId, 
     const indexes: CatSnapshotIndex[] = [];
     const stages: string[] = ["START", "INIT", "INDEX", "FINALIZE", "DONE"];
 
+    // Loop through indices in response, filter out kibana index, 
+    // gather progress info then use it to create progress field values.
     for (let item in response) {
       if (
         item.indexOf("kibana") < 0 &&
