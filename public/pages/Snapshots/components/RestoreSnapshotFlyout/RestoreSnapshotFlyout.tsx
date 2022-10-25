@@ -117,8 +117,8 @@ export default class RestoreSnapshotFlyout extends Component<RestoreSnapshotProp
     const restoreCount = restoreSpecific ? selectedIndexOptions.length : indexOptions.length;
 
     const options = {
-      indices: restoreSpecific ? selectedIndices : allIndices,
-      index_settings: customIndexSettings.length ? JSON.parse(customIndexSettings) : "",
+      indices: restoreSpecific ? this.checkSelectedIndices(selectedIndices) : allIndices,
+      index_settings: customIndexSettings.length ? this.testJSON(customIndexSettings) : "",
       ignore_index_settings: ignoreIndexSettings,
       ignore_unavailable: snapshot?.ignore_unavailable || false,
       include_global_state: snapshot?.include_global_state,
@@ -129,6 +129,9 @@ export default class RestoreSnapshotFlyout extends Component<RestoreSnapshotProp
     };
     let repoError = "";
 
+    if (typeof options.index_settings !== "string") {
+      return;
+    }
     if (!options.index_settings) {
       delete options.index_settings;
     }
@@ -151,6 +154,29 @@ export default class RestoreSnapshotFlyout extends Component<RestoreSnapshotProp
     restoreSnapshot(snapshotId, repository, options);
     onCloseFlyout()
   };
+
+  testJSON = (testString: string) => {
+    try {
+      return JSON.parse(testString);
+    } catch (err) {
+      this.context.notifications.toasts.addError(err, { title: `Please enter valid JSON.` });
+      return false;
+    }
+  }
+
+  checkSelectedIndices = (indices: string): string | boolean => {
+    const { restoreSpecific } = this.state;
+    try {
+      if (restoreSpecific && indices.length === 0) {
+        throw "No indices selected.";
+      } else {
+        return indices;
+      }
+    } catch (err) {
+
+      return false;
+    }
+  }
 
   onClickIndices = async () => {
     const { snapshot } = this.state;
@@ -326,6 +352,7 @@ export default class RestoreSnapshotFlyout extends Component<RestoreSnapshotProp
     } = RESTORE_OPTIONS;
 
     const status = snapshot ? snapshot?.state[0] + snapshot?.state.slice(1).toLowerCase() : undefined;
+    const restoreDisabled = snapshot?.failed_shards && !snapshot?.partial;
 
     return (
       <EuiFlyout ownFocus={false} maxWidth={600} onClose={onCloseFlyout} size="m" hideCloseButton>
@@ -443,7 +470,13 @@ export default class RestoreSnapshotFlyout extends Component<RestoreSnapshotProp
             </EuiFlyoutBody>
 
             <EuiFlyoutFooter>
-              <FlyoutFooter edit={true} restore={true} action="" onClickAction={this.onClickAction} onClickCancel={onCloseFlyout} />
+              <FlyoutFooter
+                edit={true}
+                restore={true}
+                action=""
+                onClickAction={this.onClickAction}
+                onClickCancel={onCloseFlyout}
+                disabledAction={!!restoreDisabled} />
             </EuiFlyoutFooter>
           </>
         )

@@ -17,11 +17,6 @@ import {
   EuiTab,
   EuiOverlayMask,
   EuiGlobalToastList,
-  EuiModal,
-  EuiModalHeader,
-  EuiModalHeaderTitle,
-  EuiModalBody,
-  EuiModalFooter
 } from "@elastic/eui";
 import { FieldValueSelectionFilterConfigType } from "@elastic/eui/src/components/search_bar/filters/field_value_selection_filter";
 import { CoreServicesContext } from "../../../../components/core_services";
@@ -37,6 +32,7 @@ import RestoreActivitiesPanel from "../../components/RestoreActivitiesPanel";
 import { Snapshot } from "../../../../../models/interfaces";
 import { BREADCRUMBS, ROUTES } from "../../../../utils/constants";
 import { renderTimestampMillis } from "../../../SnapshotPolicies/helpers";
+import ErrorModal from "../../../Snapshots/components/ErrorModal/ErrorModal"
 import DeleteModal from "../../../Repositories/components/DeleteModal/DeleteModal";
 import { getToasts } from "../../helper"
 import { snapshotStatusRender, truncateSpan } from "../../helper";
@@ -247,6 +243,7 @@ export default class Snapshots extends Component<SnapshotsProps, SnapshotsState>
       } else {
         const message = JSON.parse(response.error).error.root_cause[0].reason
         const trimmedMessage = message.slice(message.indexOf("]") + 1, message.indexOf(".") + 1);
+
         this.context.notifications.toasts.addError(response.error, {
           title: `There was a problem creating the snapshot.`,
           toastMessage: `${trimmedMessage} Open browser console & click below for details.`
@@ -263,20 +260,30 @@ export default class Snapshots extends Component<SnapshotsProps, SnapshotsState>
       const { snapshotManagementService } = this.props;
       const response = await snapshotManagementService.restoreSnapshot(snapshotId, repository, options);
       if (response.ok) {
-        this.onRestore(true);
+        this.onRestore(true, response);
       } else {
-        this.onRestore(false, JSON.parse(response.error).error.root_cause[0]);
+        this.onRestore(false, JSON.parse(response.error).error);
       }
     } catch (err) {
       this.context.notifications.toasts.addDanger(getErrorMessage(err, "There was a problem restoring the snapshot."));
     }
   };
 
-  onRestore = (success: boolean, error: RestoreError = {}) => {
+  onRestore = (success: boolean, error: object = {}) => {
     const { selectedItems } = this.state;
+    let errorMessage: string | undefined;
+    if (!success) {
+      const rawMessage = error.reason;
+      const index = rawMessage.indexOf("]") + 1;
+      const startIndex = rawMessage[index] === " " ? index + 1 : index;
+      const message = rawMessage.slice(startIndex).replace(/[\[\]]/g, '"');
+      errorMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      errorMessage = errorMessage?.slice(0, 125) + "...";
+    }
+
     const toasts = success ?
-      getToasts("success_restore_toast", selectedItems[0].id, this.onClickTab) :
-      getToasts("error_restore_toast", selectedItems[0].id, this.onOpenError);
+      getToasts("success_restore_toast", errorMessage, selectedItems[0].id, this.onClickTab) :
+      getToasts("error_restore_toast", errorMessage, selectedItems[0].id, this.onOpenError);
     this.setState({ toasts, error: error });
   }
 
@@ -312,12 +319,9 @@ export default class Snapshots extends Component<SnapshotsProps, SnapshotsState>
     const prev = target.previousElementSibling;
     const next = target.nextElementSibling;
 
-    if (selectedItems.length === 0) {
-      this.context.notifications.toasts.addWarning("Please select a snapshot to view restore activities");
-      return;
+    if (snapshotPanel) {
+      this.context.chrome.setBreadcrumbs([BREADCRUMBS.SNAPSHOT_MANAGEMENT, BREADCRUMBS.SNAPSHOTS]);
     }
-
-    this.context.chrome.setBreadcrumbs([BREADCRUMBS.SNAPSHOT_MANAGEMENT, BREADCRUMBS.SNAPSHOTS]);
 
     if (target.textContent !== "View restore activities") {
       target.ariaSelected = "true";
@@ -435,10 +439,9 @@ export default class Snapshots extends Component<SnapshotsProps, SnapshotsState>
         {snapshotPanel || (
           <RestoreActivitiesPanel
             snapshotManagementService={snapshotManagementService}
-            repository={selectedItems[0].repository}
-            snapshotId={selectedItems[0].id}
-            restoreStartRef={restoreStart}
-            restoreCount={restoreCount}
+            snapshotId={selectedItems[0]?.id || ""}
+            restoreStartRef={restoreStart || 0}
+            restoreCount={restoreCount || 0}
           />
         )}
 
@@ -500,19 +503,10 @@ export default class Snapshots extends Component<SnapshotsProps, SnapshotsState>
         <EuiGlobalToastList toasts={toasts} dismissToast={this.onToastEnd} toastLifeTimeMs={6000} />
 
         {viewError && (
-          <EuiModal onClose={this.onCloseModal}>
-            <EuiModalHeader color="danger">
-              <EuiModalHeaderTitle><h1>{error.type}</h1></EuiModalHeaderTitle>
-            </EuiModalHeader>
-
-            <EuiModalBody>
-              <EuiText size="m" color="danger">{error.reason}.</EuiText>
-            </EuiModalBody>
-
-            <EuiModalFooter>
-              <EuiButton onClick={this.onCloseModal} fill>Close</EuiButton>
-            </EuiModalFooter>
-          </EuiModal>
+          <ErrorModal
+            onClick={this.onCloseModal}
+            onClose={this.onCloseModal}
+            error={error} />
         )}
 
         {isDeleteModalVisible && (

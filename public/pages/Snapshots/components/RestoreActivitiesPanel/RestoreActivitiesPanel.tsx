@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { EuiInMemoryTable, EuiSpacer, EuiLink, EuiFlyout, EuiButton } from "@elastic/eui";
+import { EuiInMemoryTable, EuiSpacer, EuiLink, EuiFlyout, EuiButton, EuiEmptyPrompt } from "@elastic/eui";
 import _ from "lodash";
 import React, { useEffect, useContext, useState, useMemo } from "react";
 import { SnapshotManagementService } from "../../../../services";
@@ -17,7 +17,6 @@ import IndexList from "../IndexList";
 interface RestoreActivitiesPanelProps {
   snapshotManagementService: SnapshotManagementService;
   snapshotId: string;
-  repository: string;
   restoreStartRef: number;
   restoreCount: number
 }
@@ -33,7 +32,7 @@ export const RestoreActivitiesPanel = ({ snapshotManagementService, snapshotId, 
   const [flyout, setFlyout] = useState(false);
 
   useEffect(() => {
-    context!.chrome.setBreadcrumbs([BREADCRUMBS.SNAPSHOT_MANAGEMENT, BREADCRUMBS.SNAPSHOTS, BREADCRUMBS.SNAPSHOT_RESTORE]);
+    context?.chrome.setBreadcrumbs([BREADCRUMBS.SNAPSHOT_MANAGEMENT, BREADCRUMBS.SNAPSHOTS, BREADCRUMBS.SNAPSHOT_RESTORE]);
 
     if (stage !== "Done (100%)" || indices.length < restoreCount) {
       intervalIds.push(setInterval(() => {
@@ -134,7 +133,7 @@ export const RestoreActivitiesPanel = ({ snapshotManagementService, snapshotId, 
   };
 
   const actions = [
-    <EuiButton iconType="refresh" onClick={getRestoreStatus} data-test-subj="refreshStatusButton">
+    <EuiButton iconType="refresh" onClick={getRestoreStatus} data-test-subj="refreshStatusButton" isDisabled={!!restoreStartRef}>
       Refresh
     </EuiButton>,
   ];
@@ -175,11 +174,13 @@ export const RestoreActivitiesPanel = ({ snapshotManagementService, snapshotId, 
     },
   ];
 
+  const message = (<EuiEmptyPrompt title={<h3>No restore activities currently in progress</h3>} titleSize="s" body=""></EuiEmptyPrompt>)
+
   return (
     <>
       {flyout && <EuiFlyout ownFocus={false} maxWidth={600} onClose={onCloseFlyout} size="m"><IndexList indices={indices} snapshot={snapshotId} onClick={onCloseFlyout} title="Indices being restored in" /></EuiFlyout>}
       <ContentPanel title="Restore activities in progress" actions={actions}>
-        <EuiInMemoryTable items={restoreStatus} columns={columns} pagination={false} />
+        <EuiInMemoryTable items={snapshotId && restoreCount ? restoreStatus : []} columns={columns} pagination={false} message={message} />
         <EuiSpacer size="xxl" />
         <EuiSpacer size="xxl" />
         <EuiSpacer size="xxl" />

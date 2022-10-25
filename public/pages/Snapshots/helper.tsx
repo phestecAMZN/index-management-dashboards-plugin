@@ -6,7 +6,7 @@
 import React from "react";
 import _ from "lodash";
 import { Toast } from "../../models/interfaces"
-import { EuiHealth, EuiButton, EuiFlexGroup, EuiSpacer } from "@elastic/eui";
+import { EuiHealth, EuiButton, EuiFlexGroup, EuiSpacer, EuiText } from "@elastic/eui";
 
 export function truncateLongText(text: string, truncateLen: number = 20): string {
   if (text.length > truncateLen) {
@@ -31,7 +31,7 @@ export function snapshotStatusRender(value: string): React.ReactElement {
 }
 
 
-export const getToasts = (id: string, snapshotId: string, onClick: (e: React.MouseEvent) => void): Toast[] => {
+export const getToasts = (id: string, message: string | undefined, snapshotId: string, onClick: (e: React.MouseEvent) => void): Toast[] => {
   const toasts = [
     {
       id: "success_restore_toast",
@@ -49,10 +49,11 @@ export const getToasts = (id: string, snapshotId: string, onClick: (e: React.Mou
     },
     {
       id: "error_restore_toast",
-      title: `Error restoring snapshot "${snapshotId}"`,
+      title: `Failed to restore snapshot "${snapshotId}"`,
       color: "danger",
       text: (
         <>
+          <EuiText size="s">{message}</EuiText>
           <EuiSpacer size="xl" />
           <EuiFlexGroup justifyContent="flexEnd" style={{ paddingRight: "1rem" }}>
             <EuiButton onClick={onClick} color="danger">View full error</EuiButton>
