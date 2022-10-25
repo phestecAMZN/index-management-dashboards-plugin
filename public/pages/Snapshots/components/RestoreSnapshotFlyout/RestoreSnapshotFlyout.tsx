@@ -210,6 +210,14 @@ export default class RestoreSnapshotFlyout extends Component<RestoreSnapshotProp
     ignore && this.setState({ ignoreIndexSettings: indexSettings });
   };
 
+  getIndexSettings = (indexSettings: string) => {
+    const { snapshot } = this.state;
+    const ignore = snapshot?.ignore_index_settings ? snapshot.ignore_index_settings : false;
+
+    !ignore && this.setState({ customIndexSettings: indexSettings });
+    ignore && this.setState({ ignoreIndexSettings: indexSettings });
+  };
+
   onCreateOption = (searchValue: string, options: Array<EuiComboBoxOptionOption<IndexItem>>) => {
     const normalizedSearchValue = searchValue.trim().toLowerCase();
     if (!normalizedSearchValue) {

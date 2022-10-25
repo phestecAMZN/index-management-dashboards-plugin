@@ -5,7 +5,7 @@
 
 import { EuiInMemoryTable, EuiSpacer, EuiLink, EuiFlyout, EuiButton } from "@elastic/eui";
 import _ from "lodash";
-import React, { useEffect, useContext, useState } from "react";
+import React, { useEffect, useContext, useState, useMemo } from "react";
 import { SnapshotManagementService } from "../../../../services";
 import { CoreServicesContext } from "../../../../components/core_services";
 import { getErrorMessage } from "../../../../utils/helpers";
@@ -151,7 +151,6 @@ export const RestoreActivitiesPanel = ({ snapshotManagementService, snapshotId, 
       indexes: indexes,
     },
   ];
-
   const columns = [
     {
       field: "start_time",
