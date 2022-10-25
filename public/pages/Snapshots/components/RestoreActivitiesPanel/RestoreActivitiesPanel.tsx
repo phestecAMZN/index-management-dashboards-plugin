@@ -132,11 +132,14 @@ export const RestoreActivitiesPanel = ({ snapshotManagementService, snapshotId, 
 
   };
 
-  const actions = [
-    <EuiButton iconType="refresh" onClick={getRestoreStatus} data-test-subj="refreshStatusButton" isDisabled={!!restoreStartRef}>
-      Refresh
-    </EuiButton>,
-  ];
+  const actions = useMemo(() => (
+    [
+      <EuiButton iconType="refresh" onClick={getRestoreStatus} data-test-subj="refreshStatusButton" isDisabled={restoreStartRef === 0}>
+        Refresh
+      </EuiButton>,
+    ]
+  ), []);
+
 
   const indexText = `${restoreCount === 1 ? "Index" : "Indices"}`
   const indexes = `${restoreCount} ${indexText}`;
