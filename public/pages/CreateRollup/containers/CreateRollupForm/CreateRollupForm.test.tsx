@@ -290,7 +290,7 @@ describe("<CreateRollupForm /> creation", () => {
 
     //Select timestamp
     await userEvent.type(getByTestId("comboBoxSearchInput"), "order_date");
-    await waitFor(() => {});
+    await waitFor(() => { });
     fireEvent.keyDown(getByTestId("comboBoxSearchInput"), { key: "Enter", code: "Enter" });
     fireEvent.blur(getByTestId("comboBoxSearchInput"));
 
@@ -307,12 +307,12 @@ describe("<CreateRollupForm /> creation", () => {
 
     //Test create
     userEvent.click(getByTestId("createRollupSubmitButton"));
-    await waitFor(() => {});
+    await waitFor(() => { });
 
     expect(browserServicesMock.rollupService.putRollup).toHaveBeenCalledTimes(1);
     expect(coreServicesMock.notifications.toasts.addSuccess).toHaveBeenCalledTimes(1);
     expect(coreServicesMock.notifications.toasts.addSuccess).toHaveBeenCalledWith(`Created rollup: some_rollup_id`);
-  });
+  }, 20000);
 
   it("can set all values on step 2", async () => {
     const { getByTestId, getByLabelText, queryByText, getAllByTestId, getByDisplayValue, getByText } = renderCreateRollupFormWithRouter();
@@ -338,7 +338,7 @@ describe("<CreateRollupForm /> creation", () => {
 
     //Select timestamp
     await userEvent.type(getByTestId("comboBoxSearchInput"), "order_date");
-    await waitFor(() => {});
+    await waitFor(() => { });
     fireEvent.keyDown(getByTestId("comboBoxSearchInput"), { key: "Enter", code: "Enter" });
     fireEvent.blur(getByTestId("comboBoxSearchInput"));
 

@@ -88,7 +88,7 @@ describe("<TransformDetails /> spec", () => {
     });
     const { getByTestId } = renderTransformDetailsWithRouter([`${ROUTES.TRANSFORM_DETAILS}?id=${testTransform2._id}`]);
 
-    await waitFor(() => {});
+    await waitFor(() => { });
 
     userEvent.click(getByTestId("actionButton"));
 
@@ -98,7 +98,7 @@ describe("<TransformDetails /> spec", () => {
 
     userEvent.click(getByTestId("disableButton"));
 
-    await waitFor(() => {});
+    await waitFor(() => { });
 
     expect(browserServicesMock.transformService.stopTransform).toHaveBeenCalledTimes(1);
     expect(coreServicesMock.notifications.toasts.addSuccess).toHaveBeenCalledTimes(1);
@@ -116,7 +116,7 @@ describe("<TransformDetails /> spec", () => {
     });
     const { getByTestId } = renderTransformDetailsWithRouter([`${ROUTES.TRANSFORM_DETAILS}?id=${testTransform2._id}`]);
 
-    await waitFor(() => {});
+    await waitFor(() => { });
 
     userEvent.click(getByTestId("actionButton"));
 
@@ -126,7 +126,7 @@ describe("<TransformDetails /> spec", () => {
 
     userEvent.click(getByTestId("disableButton"));
 
-    await waitFor(() => {});
+    await waitFor(() => { });
 
     expect(browserServicesMock.transformService.stopTransform).toHaveBeenCalledTimes(1);
     expect(coreServicesMock.notifications.toasts.addDanger).toHaveBeenCalledTimes(1);
@@ -145,7 +145,7 @@ describe("<TransformDetails /> spec", () => {
 
     const { getByTestId } = renderTransformDetailsWithRouter([`${ROUTES.TRANSFORM_DETAILS}?id=${testTransformDisabled._id}`]);
 
-    await waitFor(() => {});
+    await waitFor(() => { });
 
     userEvent.click(getByTestId("actionButton"));
 
@@ -155,7 +155,7 @@ describe("<TransformDetails /> spec", () => {
 
     userEvent.click(getByTestId("enableButton"));
 
-    await waitFor(() => {});
+    await waitFor(() => { });
 
     expect(browserServicesMock.transformService.startTransform).toHaveBeenCalledTimes(1);
     expect(coreServicesMock.notifications.toasts.addSuccess).toHaveBeenCalledTimes(1);
@@ -170,13 +170,13 @@ describe("<TransformDetails /> spec", () => {
     browserServicesMock.transformService.deleteTransform = jest.fn().mockResolvedValue({ ok: true, response: true });
     const { getByTestId } = renderTransformDetailsWithRouter([`${ROUTES.TRANSFORM_DETAILS}?id=${testTransform2._id}`]);
 
-    await waitFor(() => {});
+    await waitFor(() => { });
 
     userEvent.click(getByTestId("actionButton"));
 
     userEvent.click(getByTestId("deleteButton"));
 
-    await waitFor(() => {});
+    await waitFor(() => { });
 
     await waitFor(() => getByTestId("deleteTextField"));
 
@@ -188,11 +188,11 @@ describe("<TransformDetails /> spec", () => {
 
     userEvent.click(getByTestId("confirmModalConfirmButton"));
 
-    await waitFor(() => {});
+    await waitFor(() => { });
 
     expect(browserServicesMock.transformService.deleteTransform).toHaveBeenCalledTimes(1);
     expect(coreServicesMock.notifications.toasts.addSuccess).toHaveBeenCalledTimes(1);
-  }, 10000);
+  }, 20000);
 
   it("can show a started transform job", async () => {
     let startedJob = testTransform2;
@@ -205,7 +205,7 @@ describe("<TransformDetails /> spec", () => {
 
     const { queryByText, getByText } = renderTransformDetailsWithRouter([`${ROUTES.TRANSFORM_DETAILS}?id=${startedJob._id}`]);
 
-    await waitFor(() => {});
+    await waitFor(() => { });
 
     expect(queryByText("Initializing...")).not.toBeNull();
   });
@@ -221,7 +221,7 @@ describe("<TransformDetails /> spec", () => {
 
     const { queryByText } = renderTransformDetailsWithRouter([`${ROUTES.TRANSFORM_DETAILS}?id=${stoppedJob._id}`]);
 
-    await waitFor(() => {});
+    await waitFor(() => { });
 
     expect(queryByText("Stopped")).not.toBeNull();
   });
