@@ -43,9 +43,12 @@
     "json-schema": "^0.4.0",
     "ansi-regex": "^5.0.1",
     "minimist": "^1.2.6",
+    "loader-utils": "^2.0.3",
+    "ts-loader": "^8.4.0",
     "moment": "^2.29.4",
     "async": "^3.2.3",
-    "terser": "^4.8.1"
+    "terser": "^4.8.1",
+    "webpack": "^5.75.0"
   },
   "devDependencies": {
     "@elastic/elastic-eslint-config-kibana": "link:../../packages/opensearch-eslint-config-opensearch-dashboards",
